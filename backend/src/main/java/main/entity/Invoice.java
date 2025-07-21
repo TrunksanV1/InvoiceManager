@@ -2,47 +2,68 @@ package main.entity;
 
 import jakarta.persistence.*;
 import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 @Entity
 public class Invoice {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    
+
     @ManyToOne
-    @JoinColumn(name = "client_id",nullable = false)
+    @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
     private Date date;
-    private double amount;
     private String status;
-    private String departure;
-    private String arrival;
-    @JsonProperty("b_f")
-    private boolean b_f;
     private boolean tva;
     private int tva_rate;
     private String greeting;
+    private String object;
 
-    public Invoice() {
-        // Default constructor
-    }
+    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.EAGER)
+    private List<Designation> designations = new ArrayList<>();
 
-    public Invoice(int id, Client client, Date date, double amount, String status, String departure, String arrival, boolean b_f, boolean tva, int tva_rate, String greeting) {
+    public Invoice() {}
+
+    public Invoice(int id, Client client, Date date, String status, boolean tva, int tva_rate, String greeting,String object) {
         this.id = id;
         this.client = client;
         this.date = date;
-        this.amount = amount;
         this.status = status;
-        this.departure = departure;
-        this.arrival = arrival;
-        this.b_f = b_f;
         this.tva = tva;
         this.tva_rate = tva_rate;
         this.greeting = greeting;
+        this.object = object;
+    }
+
+    // Add methods to manage designations
+    public void addDesignation(Designation designation) {
+        designations.add(designation);
+        designation.setInvoice(this);
+    }
+
+    public void removeDesignation(Designation designation) {
+        designations.remove(designation);
+        designation.setInvoice(null);
     }
 
     // Getters and Setters
+
+    public List<Designation> getDesignations() {
+        return designations;
+    }
+
+    public void setDesignations(List<Designation> designations) {
+        this.designations = designations;
+        // Make sure to set this invoice reference on each designation
+        for (Designation d : designations) {
+            d.setInvoice(this);
+        }
+    }
+
     public int getId() {
         return id;
     }
@@ -61,37 +82,19 @@ public class Invoice {
     public void setDate(Date date) {
         this.date = date;
     }
-    public double getAmount() {
-        return amount;
-    }
-    public void setAmount(double amount) {
-        this.amount = amount;
-    }
     public String getStatus() {
         return status;
     }
     public void setStatus(String status) {
         this.status = status;
     }
-    public String getDeparture() {
-        return departure;
+
+    public String getObject() {
+        return object;
     }
-    public void setDeparture(String departure) {
-        this.departure = departure;
-    }
-    public String getArrival() {
-        return arrival;
-    }
-    public void setArrival(String arrival) {
-        this.arrival = arrival;
-    }
-    @JsonIgnore
-    public boolean isB_f() {
-        return b_f;
-    }
-    @
-    public void setB_f(boolean b_f) {
-        this.b_f = b_f;
+
+    public void setObject(String object) {
+        this.object = object;
     }
     public boolean isTva() {
         return tva;

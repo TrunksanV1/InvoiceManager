@@ -1,0 +1,29 @@
+.client-panel{
+
+    align-items: center;
+    padding: 20px;
+    background-color: var(--backgroundcolorlight);
+    opacity: 0.75;
+    width:80%;
+        box-shadow: 
+    0px 1px 5px 0px var(--primary-color),
+    1px 1px 5px 0px var(--primary-color),
+    -1px 1px 5px 0px var(--primary-color),
+    0px -1px 5px 0px var(--secondary-color);
+    margin:auto;
+
+    height: 800px;
+
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: 1fr;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px; 
+}
+
+.clients-list{
+    grid-area: 1 / 1 / 2 / 2;
+    height:90%;
+    width:100%;
+    overflow-y: auto;
+}

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Client {
     @Id
     @JsonProperty("client_id") 
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int client_id;
 
     private String name;

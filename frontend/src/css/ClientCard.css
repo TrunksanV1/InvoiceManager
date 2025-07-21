@@ -1,0 +1,29 @@
+.client-card {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: 0.3s ease;
+    font-family: Arial, sans-serif;
+}
+
+.client-card:hover {
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.client-name {
+    font-size: 1.4rem;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.client-company,
+.client-address,
+.client-email,
+.client-id {
+    font-size: 1rem;
+    color: #555;
+    margin: 4px 0;
+}

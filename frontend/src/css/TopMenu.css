@@ -1,0 +1,22 @@
+
+.top-menu{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: var(--backgroundcolorlight);
+    box-shadow: 0 5px 15px var(--primary-color);
+    margin-bottom:35px ;
+}
+.top-menu >ul li{
+    list-style: none;
+    margin: 0 15px;
+    cursor: pointer;
+    font-weight: bold;
+    display: inline-block;
+    font-size: 1.5rem;
+}
+
+.top-menu >ul li:hover{
+    color: var(--primary-color);
+}

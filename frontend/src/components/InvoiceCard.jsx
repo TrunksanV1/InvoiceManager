@@ -1,0 +1,169 @@
+import React from 'react';
+
+import '../css/InvoicePDF.css';
+
+/*
+private Client client;
+
+    private Date date;
+    private double amount;
+    private String status;
+    private String departure;
+    private String arrival;
+    @JsonProperty("b_f")
+    private boolean b_f;
+    private boolean tva;
+    private int tva_rate;
+    private String greeting;
+    */
+
+/*
+{
+-company
+    "name": "myname",
+    "siret": "SIRET : 15416565485",
+    "adress": "6 rue du coulommiers",
+    "postalCode": "06140",
+    "city": "town",
+    "phone": "0625",
+    "email": "seihnor@yahoo.com"
+}
+*/
+
+/*
+[
+    {
+        "id": 1,
+        "client": {
+            "name": "Thomas",
+            "lastName": "Ramel",
+            "incorporation": null,
+            "email": "thomasramel@example.com",
+            "adress": "6 rue zitoune",
+            "postalCode": "12345",
+            "city": "Allauch",
+            "client_id": 1
+        },
+        "date": "2025-07-20T22:00:00.000+00:00",
+        "status": "ENVOYÉ",
+        "tva": true,
+        "tva_rate": 20,
+        "greeting": "Merci pour votre confiance.",
+        "designations": [
+            {
+                "date": "2025-07-20T00:00:00.000+00:00",
+                "departure": "Marseille",
+                "arrival": "Lyon",
+                "b_f": "false",
+                "amount": 90.0
+            },
+            {
+                "date": "2025-07-21T00:00:00.000+00:00",
+                "departure": "Lyon",
+                "arrival": "Grenoble",
+                "b_f": "true",
+                "amount": 300.0
+            }
+        ]
+    }
+]
+*/
+const roundToTenth = (value) => {
+  return (Math.round(value * 10) / 10).toFixed(2);
+};
+
+
+export const InvoiceCard = ({ invoice ,company }) => {
+    let client = invoice.client;
+    const totalTTC = invoice.designations.reduce((sum, d) => sum + d.amount, 0);
+    const totalHT = invoice.tva ? roundToTenth(totalTTC / (1 + invoice.tva_rate / 100)) : totalTTC;
+    const TVA =  invoice.tva ? roundToTenth(totalTTC - totalHT) : 0.0;
+    console.log(invoice)
+    return (
+        <div className="invoice-card">
+            <h1 className='invoice-id'>Facture n°{invoice.id}</h1>
+
+            <div className="Bossman">
+                <h2 className="nomBossman">{company.name} </h2>
+                <p className="adressBossman">{company.adress}</p>
+                <p className="codepostalBossman">{company.postalCode} {company.city}</p>
+                <h2 className="siretBossman">{company.siret}</h2>
+                <p className="emailBossman">{company.email}</p>
+                <p className="phoneBossman">{company.phone}</p>
+            </div>
+
+            <div className='client'>
+            {
+            client.name &&
+                (
+                    <h2 className="invoice-client">{client.name} {client.lastName}</h2>
+                ) || (<h2 className="invoice-client"> {client.incorporation}</h2>)
+             }
+
+            <p className="invoice-address"> {client.adress}, {client.postalCode} {client.city}</p>
+            <p className="invoice-email"> {client.email}</p>
+            </div>
+
+            <div className='invoiceDetails'>
+                <p className='invoiceDate'>Date : {new Date(invoice.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit',year : 'numeric'})}</p>
+                <p className='invoiceObjet'>Objet : {invoice.object}</p>
+            </div>
+
+           <div className='invoiceDesignation'>
+            <table>
+                <thead>
+                <tr>
+                    <th>Désignation</th>
+                    <th>Quantité</th>
+                    <th>Prix unitaire HT</th>
+                    <th>Total HT</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr >
+                    <td>
+                        {invoice.designations.map((designation, index) => (
+                            <p  key={index}>
+                                {new Date(designation.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })} : {designation.name} {designation.departure} → {designation.arrival} {designation.b_f === "true" ? "A/R " : ""} {designation.amount}€
+                            </p>
+                        ))}
+                    </td>
+                    <td rowSpan={invoice.designations.size}>1</td>
+                    <td rowSpan={invoice.designations.size}>{totalHT}€</td>
+                    <td rowSpan={invoice.designations.size}>{totalHT}€</td>
+                </tr>
+
+                <tr>
+                    <td style={{ border:"none", borderTop: "1px solid black" }}></td>
+                    <td colspan={2}>Montant total HT</td>
+                    <td>{totalHT}€</td>
+                </tr>
+                {(invoice.tva && (
+                    <tr>
+                        <td style = {{border:"none"}}></td>
+                        <td colspan={2}>T.V.A {invoice.tva_rate}%</td>
+                        <td>{TVA}€</td>
+                    </tr>)
+                    ||
+                    (<tr>
+                        <td style = {{border:"none"}}></td>
+                        <td colspan={2}>T.V.A non applicable, art. 293 B du CGI </td>
+                        <td>/</td>
+                    </tr>)
+                )
+                }
+                <tr>
+                    <td style = {{border:"none"}}></td>
+                    <td colspan={2}>Total à payer</td>
+                    <td>{totalTTC}€</td>
+                </tr>
+                </tbody>
+            </table>
+
+            </div>
+
+            <h2>{invoice.greeting}</h2>
+            
+        </div>
+    );
+}
