@@ -1,53 +1,108 @@
-const {app, BrowserWindow} = require('electron');
+const { app, BrowserWindow } = require('electron');
 const path = require('path');
-const { spawn } = require('child_process');
+const { spawn, exec } = require('child_process');
+const http = require('http');
 
 let backend;
-
-function createWindow() {
-    const window = new BrowserWindow({
-        width: 1200,
-        height: 800,
-        webPreferences:{
-            contextIsolation: true,
-        },
-    });
-
-    window.loadURL("http://localhost:3000");
-
-    //window.loadFile(path.join(__dirname, 'index.html'));
-}
+let mainWindow;
 
 function startBackend() {
-    backend = spawn('java', ['-jar', '../backend/build/libs/backend-0.0.1-SNAPSHOT.jar'], {
-        cwd: path.join(__dirname, '../backend'),        
-        detached: true, //false for prod
-        stdio: 'ignore',
-        //shell: false,
-        //windowHide: true,
+    backend = spawn('java', ['-jar', 'build/libs/backend-0.0.1-SNAPSHOT.jar'], {
+        cwd: path.join(__dirname, '../backend'),
+        detached: false,
+        stdio: 'inherit',
     });
-    backend.unref();
 }
 
 function stopBackend() {
     if (backend) {
-        backend.kill();
+        console.log('Killing backend process...');
+        exec(`taskkill /PID ${backend.pid} /T /F`, (err) => {
+            if (err) {
+                console.error(`Failed to kill backend: ${err.message}`);
+            } else {
+                console.log('Backend process killed successfully.');
+            }
+        });
         backend = null;
     }
 }
 
-app.whenReady().then(()=>{
-   /* startBackend();*/
-    createWindow();
-})
+function waitForBackendReady(url = 'http://localhost:8080/health', timeout = 30000, interval = 500) {
+    return new Promise((resolve, reject) => {
+        const start = Date.now();
 
-app.on('window-all-closed',()=>{
+        const check = () => {
+            const req = http.get(url, (res) => {
+                if (res.statusCode === 200 || res.statusCode === 404) {
+                    resolve();
+                } else {
+                    retry();
+                }
+            });
+
+            req.on('error', retry);
+            req.setTimeout(1000, () => {
+                req.abort();
+                retry();
+            });
+        };
+
+        const retry = () => {
+            if (Date.now() - start > timeout) {
+                reject(new Error('Backend did not start in time.'));
+            } else {
+                setTimeout(check, interval);
+            }
+        };
+
+        check();
+    });
+}
+
+function createLoadingWindow() {
+    mainWindow = new BrowserWindow({
+        width: 500,
+        height: 300,
+        webPreferences: {
+            contextIsolation: true,
+        },
+    });
+
+    mainWindow.loadFile(path.join(__dirname, 'loading.html'));
+}
+
+function loadMainApp() {
+    mainWindow.setSize(1200, 800);
+    mainWindow.center();
+    mainWindow.setResizable(true);
+    mainWindow.setAlwaysOnTop(false);
+    mainWindow.loadURL('http://localhost:3000');
+}
+
+app.whenReady().then(() => {
+    startBackend();
+    createLoadingWindow();
+
+    waitForBackendReady()
+        .then(() => {
+            console.log('Backend is ready. Loading app...');
+            loadMainApp();
+        })
+        .catch((err) => {
+            console.error(err.message);
+            stopBackend();
+            app.quit();
+        });
+});
+
+app.on('window-all-closed', () => {
+    stopBackend();
     if (process.platform !== 'darwin') {
         app.quit();
     }
 });
 
-app.on('before-quit',()=>{
+app.on('before-quit', () => {
     stopBackend();
 });
-
