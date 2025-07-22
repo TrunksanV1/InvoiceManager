@@ -162,7 +162,7 @@ export const InvoiceCard = ({ invoice ,company }) => {
 
             </div>
 
-            <h2>{invoice.greeting}</h2>
+            <h2 style={{ whiteSpace:"pre-line" }}>{invoice.greeting}</h2>
             
         </div>
     );
