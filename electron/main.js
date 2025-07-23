@@ -2,12 +2,13 @@ const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const { spawn, exec } = require('child_process');
 const http = require('http');
+const javaPath = path.join(__dirname, 'jdk-17.0.15.6-hotspot', 'bin', 'java.exe');
 
 let backend;
 let mainWindow;
 
 function startBackend() {
-    backend = spawn('java', ['-jar', 'build/libs/backend-0.0.1-SNAPSHOT.jar'], {
+    backend = spawn(javaPath, ['-jar', 'build/libs/backend-0.0.1-SNAPSHOT.jar'], {
         cwd: path.join(__dirname, '../backend'),
         detached: false,
         stdio: 'inherit',

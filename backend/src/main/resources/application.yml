@@ -17,11 +17,12 @@ logging:
 level:
   org.hibernate.SQL: DEBUG
 
-company :
-  name: "myname"
-  siret: "SIRET : 15416565485"
-  adress: "6 rue du coulommiers"
-  postalCode: "06140"
-  city: "town"
-  phone: "0625"
-  email: "seihnor@yahoo.com"
+company: 
+  name: "Prénom Nom"
+  siret: "000 000 000 00000"
+  adress: "Adresse de l'entreprise"
+  postalCode: "00000"
+  city: "Ville"
+  phone: "06 00 00 00 00"
+  email: "contact@exemple.com"
+

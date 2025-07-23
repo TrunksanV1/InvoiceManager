@@ -72,5 +72,45 @@ public class InvoiceController {
         invoiceRepository.deleteById(id);
     }
 
+    @PutMapping("/{id}")
+public Invoice updateInvoice(@PathVariable int id, @RequestBody InvoiceDTO invoiceDTO) {
+    Invoice existingInvoice = invoiceRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Invoice not found"));
+
+    Client client = clientRepository.findById(invoiceDTO.getClientId())
+        .orElseThrow(() -> new RuntimeException("Client not found"));
+
+    existingInvoice.setClient(client);
+
+    try {
+        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+        java.util.Date parsedDate = sdf.parse(invoiceDTO.getDate());
+        existingInvoice.setDate(parsedDate);
+    } catch (java.text.ParseException e) {
+        throw new RuntimeException("Invalid date format. Expected yyyy-MM-dd", e);
+    }
+
+    existingInvoice.setStatus(invoiceDTO.getStatus());
+    existingInvoice.setTva(invoiceDTO.isTva());
+    existingInvoice.setTva_rate(invoiceDTO.getTva_rate());
+    existingInvoice.setGreeting(invoiceDTO.getGreeting());
+    existingInvoice.setObject(invoiceDTO.getObject());
+
+    // Clear old designations first (optional but usually recommended)
+    existingInvoice.getDesignations().clear();
+
+    if (invoiceDTO.getDesignations() != null) {
+        for (DesignationDTO d : invoiceDTO.getDesignations()) {
+            Designation designation = new Designation(
+                d.getDate(), d.getDeparture(), d.getArrival(), d.getB_f(), d.getAmount(), d.getName()
+            );
+            designation.setInvoice(existingInvoice); // back-reference
+            existingInvoice.addDesignation(designation);
+        }
+    }
+
+    return invoiceRepository.save(existingInvoice);
+}
+
 
 }

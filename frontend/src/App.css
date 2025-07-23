@@ -20,3 +20,14 @@ body{
     color: var(--text-color);
     font-family: var(--font-family);
 }
+
+.remove-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: #d00;
+  cursor: pointer;
+  font-weight: bold;
+}
