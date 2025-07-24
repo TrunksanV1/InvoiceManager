@@ -1,147 +1,131 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef ,useMemo} from 'react';
 import { InvoiceCard } from '../components/InvoiceCard';
-import InvoiceForm from '../components/InvoiceForm';
 import '../css/InvoicePanel.css';
 import { generateInvoicePDF } from '../utils/pdfGenerator';
 
 
-export const InvoicePanel = () => {
+export const InvoicePanel = ({ setInvoices, invoices, openInvoiceForm, company, clients }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [clients, setClients] = useState([]);
-  const [company, setCompany] = useState([]);
-  const [invoices, setInvoices] = useState([]);
-  const [showForm, setShowForm] = useState(false);
-  const [editInvoice, setEditInvoice] = useState(null);
+  const [selectedClientId, setSelectedClientId] = useState('all');
   const invoiceRef = useRef(null);
 
-  useEffect(() => {
-    fetch('http://localhost:8080/invoices', { method: 'GET', headers: { 'Content-Type': 'application/json' }, credentials: 'include' })
-      .then(response => response.json())
-      .then(data => {
-        setInvoices(data);
-        setCurrentIndex(data.length - 1);
-      });
-  }, []);
+  // Filter invoices by selected client id
+  const filteredInvoices = useMemo(() => {
+    if (selectedClientId === 'all') return invoices;
+    return invoices.filter(inv => String(inv.client?.clientId) === selectedClientId);
+  }, [selectedClientId, invoices]);
 
   useEffect(() => {
-    fetch('http://localhost:8080/company', { method: 'GET', headers: { 'Content-Type': 'application/json' }, credentials: 'include' })
-      .then(response => response.json())
-      .then(data => setCompany(data));
-  }, []);
+    if (filteredInvoices && filteredInvoices.length > 0) {
+      setCurrentIndex(0);
+    } else {
+      setCurrentIndex(0);
+    }
+  }, [filteredInvoices]);
 
-  useEffect(() => {
-    fetch('http://localhost:8080/clients', { method: 'GET', headers: { 'Content-Type': 'application/json' }, credentials: 'include' })
-      .then(response => response.json())
-      .then(data => setClients(data));
-  }, []);
-
+  // Navigation handlers
   const prevInvoice = () => {
-    setCurrentIndex((prev) => (prev === 0 ? invoices.length - 1 : prev - 1));
+    setCurrentIndex((prev) => (prev === 0 ? filteredInvoices.length - 1 : prev - 1));
   };
 
   const nextInvoice = () => {
-    setCurrentIndex((prev) => (prev === invoices.length - 1 ? 0 : prev + 1));
+    setCurrentIndex((prev) => (prev === filteredInvoices.length - 1 ? 0 : prev + 1));
   };
 
-  const handleEdit = () => {
-    setEditInvoice(invoices[currentIndex]);
-    setShowForm(true);
-  };
+  // Delete handler updated for filtered invoices
+  const handleDeleteInvoice = () => {
+    if (!window.confirm('Voulez-vous vraiment supprimer cette facture ?')) return;
 
-  const handleAdd = () => {
-    setEditInvoice(null);
-    setShowForm(true);
-  };
+    const idToDelete = filteredInvoices[currentIndex].id;
 
-    const handleDeleteInvoice = () => {
-      if (!window.confirm('Voulez-vous vraiment supprimer cette facture ?')) return;
-
-      const idToDelete = invoices[currentIndex].id;
-
-      fetch(`http://localhost:8080/invoices/${idToDelete}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include'
+    fetch(`http://localhost:8080/invoices/${idToDelete}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include'
+    })
+      .then(response => {
+        if (!response.ok) throw new Error('Erreur lors de la suppression');
+        setInvoices(prevInvoices => prevInvoices.filter(inv => inv.id !== idToDelete));
+        setCurrentIndex(0);
       })
-        .then(response => {
-          if (!response.ok) throw new Error('Erreur lors de la suppression');   
-          setInvoices(prevInvoices => prevInvoices.filter(inv => inv.id !== idToDelete));
-          setCurrentIndex(prevIndex => Math.max(prevIndex - 1, 0));
-        })
-        .catch(err => {
-          alert(err.message);
-        });
-    };
+      .catch(err => {
+        alert(err.message);
+      });
+  };
 
-    const handleFormSubmit = (formData) => {
-        const isEdit = !!formData.id; // If there's an id, it's an edit
-
-        const url = isEdit
-          ? `http://localhost:8080/invoices/${formData.id}`
-          : 'http://localhost:8080/invoices';
-
-        const method = isEdit ? 'PUT' : 'POST';
-
-        fetch(url, {
-          method,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(formData),
-        })
-          .then(response => {
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-          })
-          .then(updatedInvoice => {
-            console.log(isEdit ? 'Invoice updated:' : 'Invoice created:', updatedInvoice);
-
-            if (isEdit) {
-              // Update the invoice in your state array
-              setInvoices(prevInvoices =>
-                prevInvoices.map(inv => (inv.id === updatedInvoice.id ? updatedInvoice : inv))
-              );
-            } else {
-              // Add new invoice to state
-              setInvoices(prevInvoices => [...prevInvoices, updatedInvoice]);
-              setCurrentIndex(invoices.length); // set to last (new) invoice
-            }
-
-            setShowForm(false);
-          })
-          .catch(error => {
-            console.error('Error submitting form:', error);
-          });
-    };
-
-
-
-  if (invoices.length === 0) return <div>Aucune facture disponible</div>;
+  if (!invoices) return null;
 
   return (
     <div className="invoice-panel">
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 10 }}>
+        <label htmlFor="client-filter" style={{ marginRight: 10 }}>Filtrer par client:</label>
+        <select
+          id="client-filter"
+          value={selectedClientId}
+          onChange={(e) => setSelectedClientId(e.target.value)}
+        >
+          <option value="all">Tous</option>
+          {clients.map(client => (
+          <option key={client.clientId} value={client.clientId}>
+            {client.name && client.lastName
+              ? `${client.name} ${client.lastName}`
+              : client.incorporation
+            }
+          </option>
+          ))}
+        </select>
+      </div>
+
       <div className="navigation" style={{ display: 'flex', justifyContent: 'center', marginBottom: 10 }}>
-        <button onClick={prevInvoice}>&lt;</button>
-        <div style={{ margin: '0 10px' }}>Facture {currentIndex + 1} / {invoices.length}</div>
-        <button onClick={nextInvoice}>&gt;</button>
+        <button onClick={prevInvoice}><img src="./left.svg" alt="Clients" className="menu-icon" /></button>
+        {(filteredInvoices.length !== 0) && (
+          <div style={{ margin: '0 10px' }}>
+            Facture {currentIndex + 1} / {filteredInvoices.length}
+          </div>
+        )}
+        <button onClick={nextInvoice}><img src="./right.svg" alt="Clients" className="menu-icon" /></button>
       </div>
 
       <div style={{ textAlign: 'center', marginBottom: 10 }}>
-      <button onClick={() => generateInvoicePDF(invoices[currentIndex], company)}>
-        Télécharger PDF 
-      </button>
-        <button onClick={handleAdd} style={{ marginLeft: 10 }}>Ajouter</button>
-        <button onClick={handleEdit} style={{ marginLeft: 10 }}>Modifier</button>
+        <button onClick={() => openInvoiceForm(null)} style={{ marginLeft: 10 }}>
+          <img src="./add.svg" alt="Clients" className="menu-icon" />
+          Ajouter
+        </button>
+
+        {(filteredInvoices.length !== 0) && (
+          <>
+            <button onClick={() => openInvoiceForm(filteredInvoices[currentIndex])} style={{ marginLeft: 10 }}>
+              <img src="./edit.svg" alt="Clients" className="menu-icon" />
+              Modifier
+            </button>
+
+            <button onClick={() => generateInvoicePDF(filteredInvoices[currentIndex], company)} style={{ marginLeft: 10 }}>
+              <img src="./download.svg" alt="Clients" className="menu-icon" />
+              Télécharger PDF
+            </button>
+
+            <button
+              onClick={() => {
+                window.open('https://mail01.orange.fr/appsuite/#!&app=fr.in8/mail/compose:compose', '_blank');
+              }}
+              style={{ marginLeft: 10 }}
+            >
+              <img src="./mail.svg" alt="Email" className="menu-icon" />
+              Envoyer Email
+            </button>
+          </>
+        )}
       </div>
 
-      <div className="invoice-display" >
-        <InvoiceCard ref={invoiceRef} invoice={invoices[currentIndex]} company={company} onDelete={handleDeleteInvoice}/>
-      </div>
-
-      {showForm && (
-        <InvoiceForm clients={clients} invoice={editInvoice} onClose={() => setShowForm(false)} onSubmit={handleFormSubmit} />
+      {(filteredInvoices.length !== 0) && (
+        <div className="invoice-display">
+          <InvoiceCard
+            ref={invoiceRef}
+            invoice={filteredInvoices[currentIndex]}
+            company={company}
+            onDelete={handleDeleteInvoice}
+          />
+        </div>
       )}
     </div>
   );

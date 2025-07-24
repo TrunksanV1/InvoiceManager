@@ -10,6 +10,14 @@ public class DesignationDTO {
     private double amount;
     private String name; 
 
+    public DesignationDTO(Date date, String departure, String arrival, String b_f, double amount, String name) {
+        this.date = date;
+        this.departure = departure;
+        this.arrival = arrival;
+        this.b_f = b_f;
+        this.amount = amount;
+        this.name = name;
+    }
     // Getter and Setter for date
     public Date getDate() {
         return date;
@@ -38,11 +46,11 @@ public class DesignationDTO {
     }
 
     // Getter and Setter for b_f
-    public String getB_f() {
+    public String getBf() {
         return b_f;
     }
 
-    public void setB_f(String b_f) {
+    public void setBf(String b_f) {
         this.b_f = b_f;
     }
 

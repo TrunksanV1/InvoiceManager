@@ -9,8 +9,10 @@ import main.entity.Client;
 import main.repository.ClientRepository;
 import main.entity.Designation;
 import main.dto.DesignationDTO;
+import main.dto.InvoiceResponseDTO;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/invoices")
@@ -24,14 +26,19 @@ public class InvoiceController {
     }
 
     @GetMapping
-    public List<Invoice> getAllInvoices(){
-        return invoiceRepository.findAll();
+    public List<InvoiceResponseDTO> getAllInvoices() {
+        return invoiceRepository.findAll().stream()
+            .map(InvoiceResponseDTO::new)
+            .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public Invoice getInvoiceById(@PathVariable int id){
-        return invoiceRepository.findById(id).orElseThrow();
+    public InvoiceResponseDTO getInvoiceById(@PathVariable int id) {
+        return invoiceRepository.findById(id)
+            .map(InvoiceResponseDTO::new)
+            .orElseThrow();
     }
+
 
     @PostMapping
     public Invoice createInvoice(@RequestBody InvoiceDTO invoiceDTO) {
@@ -57,7 +64,7 @@ public class InvoiceController {
     if (invoiceDTO.getDesignations() != null) {
         for (DesignationDTO d : invoiceDTO.getDesignations()) {
             Designation designation = new Designation(
-                d.getDate(), d.getDeparture(), d.getArrival(), d.getB_f(), d.getAmount(),d.getName()
+                d.getDate(), d.getDeparture(), d.getArrival(), d.getBf(), d.getAmount(),d.getName()
             );
             designation.setInvoice(invoice); // set back-reference
             invoice.addDesignation(designation); // add to invoice
@@ -102,7 +109,7 @@ public Invoice updateInvoice(@PathVariable int id, @RequestBody InvoiceDTO invoi
     if (invoiceDTO.getDesignations() != null) {
         for (DesignationDTO d : invoiceDTO.getDesignations()) {
             Designation designation = new Designation(
-                d.getDate(), d.getDeparture(), d.getArrival(), d.getB_f(), d.getAmount(), d.getName()
+                d.getDate(), d.getDeparture(), d.getArrival(), d.getBf(), d.getAmount(), d.getName()
             );
             designation.setInvoice(existingInvoice); // back-reference
             existingInvoice.addDesignation(designation);

@@ -7,37 +7,78 @@ const roundToTenth = (value) => Math.round(value * 10) / 10;
 export default function InvoiceForm({ clients, onSubmit, onClose, invoice = null }) {
   const [formData, setFormData] = useState(null);
   const [allCollapsed, setAllCollapsed] = useState(false);
-
   useEffect(() => {
     if (invoice) {
-      setFormData({
-        ...invoice,
-        id:invoice.id,
-        clientId: invoice.client.client_id?.toString() || '',
-        date: new Date(invoice.date).toISOString().split('T')[0],
-        object: invoice.object || '',           // <-- Add this line
-        designations: invoice.designations.map((d) => ({
-          ...d,
-          date : new Date(d.date).toISOString().split('T')[0],
-          amount: d.amount?.toString() || '',
-          collapsed: false,
-        })),
-      });
+      // CASE 1: Full invoice (edit/view)
+      if (invoice.id !== null && invoice.designations) {
+        const safeInvoiceDate = invoice.date
+          ? new Date(invoice.date).toISOString().split('T')[0]
+          : '';
+
+        setFormData({
+          ...invoice,
+          id: invoice.id,
+          clientId: invoice.client?.clientId?.toString() || '',
+          date: safeInvoiceDate,
+          object: invoice.object || '',
+          designations: invoice.designations.map((d) => ({
+            ...d,
+            date: d.date ? new Date(d.date).toISOString().split('T')[0] : '',
+            amount: d.amount?.toString() || '',
+            collapsed: false,
+          })),
+        });
+
+      // CASE 2: New invoice initialized from client (no id, no designations)
+      } else if (invoice.client) {
+        setFormData({
+          clientId: invoice.client.clientId?.toString() || '',
+          date: new Date(Date.now()).toISOString().split('T')[0],
+          object: '',
+          status: 'Aucun',
+          tva: false,
+          tva_rate: 10,
+          greeting: 'Merci pour votre confiance\nCordialement.',
+          designations: [
+            {
+              date: '',
+              name: '',
+              departure: '',
+              arrival: '',
+              b_f: false,
+              amount: '',
+              collapsed: false,
+            },
+          ],
+        });
+      }
+
     } else {
+      // CASE 3: Completely blank new invoice
       setFormData({
         clientId: '',
-        date: '',
-        object: '',                          // <-- Add this line for new invoices
+        date: new Date(Date.now()).toISOString().split('T')[0],
+        object: '',
         status: 'Aucun',
         tva: false,
         tva_rate: 10,
         greeting: 'Merci pour votre confiance\nCordialement.',
         designations: [
-          { date: '', name: '', departure: '', arrival: '', b_f: false, amount: '', collapsed: false },
+          {
+            date: '',
+            name: '',
+            departure: '',
+            arrival: '',
+            b_f: false,
+            amount: '',
+            collapsed: false,
+          },
         ],
       });
     }
   }, [invoice]);
+
+
 
     
     const handleChange = (e) => {
@@ -104,7 +145,12 @@ export default function InvoiceForm({ clients, onSubmit, onClose, invoice = null
       <button type="button" className="close-btn" onClick={onClose}>
         ✕
       </button>
-      <h2>{invoice ? 'Modifier la facture' : 'Créer une facture'}</h2>
+      <h2>
+        {invoice && invoice.id !== null && invoice.designations
+          ? 'Modifier la facture'
+          : 'Créer une facture'}
+      </h2>
+
 
       <div>
         <label>Client</label>
@@ -116,7 +162,7 @@ export default function InvoiceForm({ clients, onSubmit, onClose, invoice = null
         >
           <option value="">Sélectionnez un client</option>
           {clients.map((client) => (
-            <option key={client.client_id} value={client.client_id}>
+            <option key={client.clientId} value={client.clientId}>
               {client.name ? client.name+" "+ client.lastName : client.incorporation}
             </option>
           ))}
@@ -176,8 +222,17 @@ export default function InvoiceForm({ clients, onSubmit, onClose, invoice = null
           Ajouter une désignation
         </button>
         <button type="button" onClick={toggleAllCollapsed} className="collapse-all-btn">
-          {allCollapsed ? 'Tout déplier' : 'Tout replier'}
+          {allCollapsed ? (
+            <>
+              <img src="./expand.svg" alt="Tout déplier" className="menu-icon" /> Tout déplier 
+            </>
+          ) : (
+            <>
+              <img src="./collapse.svg" alt="Tout replier" className="menu-icon" /> Tout replier
+            </>
+          )}
         </button>
+
 
         <div className='designation-list'>
         {formData.designations.map((designation, index) => (

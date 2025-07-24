@@ -1,67 +1,54 @@
-.form {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    padding: 24px;
-    background-color: var(--backgroundcolorlight);
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    max-width: 500px;
-    margin: auto;
-    font-family: var(--font-family);
-    color: var(--text-color);
-     grid-area: 1 / 2 / 2 / 3;
-     width:100%;
+.client-form {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  z-index: 1000;
+  max-width: 500px;
+  width: 100%;
 }
 
-/* Title */
-.form h2 {
-    font-size: 1.5rem;
-    margin-bottom: 8px;
-    text-align: center;
+.close-btn {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 1.5rem;
+  border: none;
+  background: none;
+  cursor: pointer;
 }
 
-/* Each input block */
-.form > div {
-    display: flex;
-    flex-direction: column;
+.client-form h2 {
+  margin-top: 0;
+  text-align: center;
 }
 
-/* Label styles */
-.form label {
-    font-weight: bold;
-    margin-bottom: 4px;
-    color: var(--text-color);
+.client-form div {
+  margin-bottom: 1rem;
 }
 
-/* Input styles */
-.form input[type="text"] {
-    padding: 10px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    font-size: 1rem;
-    background-color: #fff;
-    transition: border-color 0.2s;
+.client-form label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-weight: 600;
 }
 
-.form input[type="text"]:focus {
-    outline: none;
-    border-color: var(--primary-color, #007BFF);
+.client-form input {
+  width: 100%;
+  padding: 0.5rem;
+  box-sizing: border-box;
 }
 
-/* Submit button */
-.form input[type="submit"] {
-    margin-top: 12px;
-    padding: 10px;
-    background-color: var(--primary-color, #007BFF);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.2s;
-}
-
-.form input[type="submit"]:hover {
-    background-color: var(--primary-color-dark, #0056b3);
+.submit-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #2a72de;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
 }

@@ -16,13 +16,3 @@ spring:
 logging:
 level:
   org.hibernate.SQL: DEBUG
-
-company: 
-  name: "Prénom Nom"
-  siret: "000 000 000 00000"
-  adress: "Adresse de l'entreprise"
-  postalCode: "00000"
-  city: "Ville"
-  phone: "06 00 00 00 00"
-  email: "contact@exemple.com"
-

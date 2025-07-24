@@ -13,7 +13,7 @@ public class Invoice {
     private int id;
 
     @ManyToOne
-    @JoinColumn(name = "client_id", nullable = false)
+    @JoinColumn(name = "client_id", nullable = true)
     private Client client;
 
     private Date date;

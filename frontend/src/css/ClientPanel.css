@@ -13,17 +13,19 @@
     margin:auto;
 
     height: 800px;
-
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: 1fr;
-    grid-column-gap: 0px;
-    grid-row-gap: 0px; 
 }
 
 .clients-list{
-    grid-area: 1 / 1 / 2 / 2;
     height:90%;
     width:100%;
     overflow-y: auto;
+    align-items: center;
+    justify-content: center;
+}
+
+.clients-list > .client-card{
+    width:80%;
+    text-align: center;
+    margin:auto;
+    margin-top:15px;
 }

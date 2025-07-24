@@ -12,7 +12,7 @@ export const InvoiceCard = forwardRef(({ invoice, company, onDelete }, ref) => {
     const totalTTC = invoice.designations.reduce((sum, d) => sum + d.amount, 0);
     const totalHT = invoice.tva ? roundToTenth(totalTTC / (1 + invoice.tva_rate / 100)) : totalTTC;
     const TVA =  invoice.tva ? roundToTenth(totalTTC - totalHT) : 0.0;
-    console.log(invoice)
+
     return (
         <div className="invoice-card" ref={ref}>
             <button type="button" onClick={onDelete} className="remove-btn">
@@ -31,9 +31,9 @@ export const InvoiceCard = forwardRef(({ invoice, company, onDelete }, ref) => {
 
             <div className='client'>
             {
-            client.name &&
+            (client.name &&
                 (
-                    <h2 className="invoice-client">{client.name} {client.lastName}</h2>
+                    <h2 className="invoice-client">{client.name} {client.lastName}</h2>)
                 ) || (<h2 className="invoice-client"> {client.incorporation}</h2>)
              }
 
@@ -75,12 +75,12 @@ export const InvoiceCard = forwardRef(({ invoice, company, onDelete }, ref) => {
                     <td colSpan={2}>Montant total HT</td>
                     <td>{totalHT}€</td>
                 </tr>
-                {(invoice.tva && (
+                {((invoice.tva && (
                     <tr>
                         <td style = {{border:"none"}}></td>
                         <td colSpan={2}>T.V.A {invoice.tva_rate}%</td>
                         <td>{TVA}€</td>
-                    </tr>)
+                    </tr>))
                     ||
                     (<tr>
                         <td style = {{border:"none"}}></td>

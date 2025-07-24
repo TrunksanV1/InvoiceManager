@@ -12,6 +12,8 @@ public class InvoiceDTO {
     private List<DesignationDTO> designations;
     private String object;
 
+    
+
     public List<DesignationDTO> getDesignations() {
         return designations;
     }

@@ -31,3 +31,7 @@ body{
   cursor: pointer;
   font-weight: bold;
 }
+
+.App{
+    margin-top:120px;
+}

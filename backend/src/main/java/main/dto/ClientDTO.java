@@ -1,71 +1,70 @@
-package main.entity;
-
-import jakarta.persistence.*;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-@Entity
-public class Client {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "client_id")  // keep this if your DB column has underscore
+package main.dto;
+import main.entity.Client;
+public class ClientDTO {
     private int clientId;
-
     private String name;
     private String lastName;
     private String incorporation;
-    private String email;
     private String adress;
     private String postalCode;
     private String city;
+    private String email;
 
-    public Client() {
-        // Default constructor
+    public ClientDTO(Client client) {
+        if (client == null) {
+            this.clientId = -1;
+            this.name = "Client supprimé";
+            this.lastName = "";
+            this.incorporation = "";
+            this.adress = "Inconnue";
+            this.postalCode = "";
+            this.city = "";
+            this.email = "";
+        } else {
+            this.clientId = client.getClientId(); // ✅ Add this
+            this.name = client.getName();
+            this.lastName = client.getLastName();
+            this.incorporation = client.getIncorporation();
+            this.adress = client.getAdress();
+            this.postalCode = client.getPostalCode();
+            this.city = client.getCity();
+            this.email = client.getEmail();
+        }
     }
-
-    public Client(int clientId, String name, String lastName, String incorporation, String email, String adress, String postalCode, String city) {
-        this.clientId = clientId;
-        this.name = name;
-        this.lastName = lastName;
-        this.incorporation = incorporation;
-        this.email = email;
-        this.adress = adress;
-        this.postalCode = postalCode;
-        this.city = city;
-    }
-
-    // Getters and Setters
 
     public int getClientId() {
         return clientId;
-    }       
+    }
 
     public void setClientId(int clientId) {
         this.clientId = clientId;
     }
+
+
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
+
     public String getLastName() {
         return lastName;
     }
+
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
+
     public String getIncorporation() {
         return incorporation;
     }
+
     public void setIncorporation(String incorporation) {
         this.incorporation = incorporation;
     }
-    public String getEmail() {
-        return email;
-    }
-    public void setEmail(String email) {
-        this.email = email;
-    }
+
     public String getAdress() {
         return adress;
     }
@@ -73,18 +72,28 @@ public class Client {
     public void setAdress(String adress) {
         this.adress = adress;
     }
+
     public String getPostalCode() {
         return postalCode;
     }
+
     public void setPostalCode(String postalCode) {
         this.postalCode = postalCode;
     }
+
     public String getCity() {
         return city;
     }
+
     public void setCity(String city) {
         this.city = city;
     }
 
+    public String getEmail() {
+        return email;
+    }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
 }

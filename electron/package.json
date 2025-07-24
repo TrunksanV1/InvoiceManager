@@ -1,15 +1,46 @@
 {
-  "name": "electron",
+  "name": "drive-me-factures",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "main.js",
+  "description": "Drive Me Factures Electron App",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "electron .",
+    "dist": "electron-builder"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "devDependencies": {
-    "electron": "^37.2.3"
+    "electron": "^37.2.3",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.drivemefactures.app",
+    "productName": "Drive Me Factures",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "loading.html",
+      "react/**",
+      "assets/**",
+      "java/**"
+    ],
+    "extraResources": [
+      {
+        "from": "jdk-17.0.15.6-hotspot",
+        "to": "jdk-17.0.15.6-hotspot"
+      },
+      {
+        "from": "java",
+        "to": "java"
+      },
+      {
+        "from": "config",
+        "to": "config"
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/logo.ico"
+    }
   }
 }

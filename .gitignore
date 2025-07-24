@@ -1,5 +1,9 @@
 backend/.gradle
 backend/build
 frontend/node_modules
+frontend/build
 electron/node_modules
 electron/jdk-17.0.15.6-hotspot
+electron/dist
+electron/java
+electron/react
